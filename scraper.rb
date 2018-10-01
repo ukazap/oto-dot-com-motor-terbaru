@@ -15,7 +15,7 @@ loop do
 
   links.each do |link|
     detail_page = agent.get(link)
-    puts detail_page.title
+    puts "Page #{page}: #{detail_page.title}"
 
     breadcrumb_link = detail_page.search('.breadcrumb li')
 
