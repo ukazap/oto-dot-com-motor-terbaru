@@ -29,7 +29,7 @@ loop do
       features[name.content.strip.downcase.gsub(" ", "_")] = value.content
     end
 
-    features["automatic_transmission"] = features['jenis_transmisi'].strip != 'Manual'
+    features["automatic_transmission"] = (features['jenis_transmisi'].strip != 'Manual').to_s
 
     ScraperWiki.save_sqlite(["name"], features)
   end
