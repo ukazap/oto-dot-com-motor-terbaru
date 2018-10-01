@@ -21,14 +21,15 @@ loop do
 
     features = {
       "name" => breadcrumb_link[3].content,
-      "brand" => breadcrumb_link[2].content,
-      "automatic_transmission" => features['Jenis Transmisi'].strip != 'Manual'
+      "brand" => breadcrumb_link[2].content
     }
 
     detail_page.search('.feature-list td').each_slice(2) do |feature|
       name, value = feature
       features[name.content.downcase.gsub(" ", "_")] = value.content
     end
+
+    features["automatic_transmission"] = features['Jenis Transmisi'].strip != 'Manual'
 
     ScraperWiki.save_sqlite(["name"], features)
   end
