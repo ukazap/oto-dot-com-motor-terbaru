@@ -35,6 +35,8 @@ loop do
   end
 
   break if links.empty? || list_page('.loadmorebtn').nil?
+
+  page += 1
 end
 
 puts "done"
