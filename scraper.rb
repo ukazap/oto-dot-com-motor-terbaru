@@ -34,7 +34,7 @@ loop do
     ScraperWiki.save_sqlite(["name"], features)
   end
 
-  break if links.empty? || list_page('.loadmorebtn').nil?
+  break if links.empty? || list_page.search('.loadmorebtn').empty?
 
   page += 1
 end
