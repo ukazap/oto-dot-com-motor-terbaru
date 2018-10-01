@@ -2,24 +2,38 @@
 # including some code snippets below that you should find helpful
 
 # require 'scraperwiki'
-# require 'mechanize'
-#
-# agent = Mechanize.new
-#
-# # Read in a page
-# page = agent.get("http://foo.com")
-#
-# # Find somehing on the page using css selectors
-# p page.at('div.content')
-#
-# # Write out to the sqlite database using scraperwiki library
-# ScraperWiki.save_sqlite(["name"], {"name" => "susan", "occupation" => "software developer"})
-#
-# # An arbitrary query against the database
-# ScraperWiki.select("* from data where 'name'='peter'")
+require 'mechanize'
 
-# You don't have to do things with the Mechanize or ScraperWiki libraries.
-# You can use whatever gems you want: https://morph.io/documentation/ruby
-# All that matters is that your final data is written to an SQLite database
-# called "data.sqlite" in the current working directory which has at least a table
-# called "data".
+agent = Mechanize.new
+
+page = 1
+
+loop do
+  list_page = agent.get("https://www.oto.com/motor-populer?itemsOnly=true&sort=populer&page=#{page}")
+  puts list_page.title
+  links = list_page.search('.filtercars li.item .card-title a').map {|l| l.attr(:href)  }
+
+  links.each do |link|
+    detail_page = agent.get(link)
+    puts detail_page.title
+
+    breadcrumb_link = detail_page.search('.breadcrumb li')
+
+    features = {
+      "name" => breadcrumb_link[3].content,
+      "brand" => breadcrumb_link[2].content,
+      "automatic_transmission" => features['Jenis Transmisi'].strip != 'Manual'
+    }
+
+    detail_page.search('.feature-list td').each_slice(2) do |feature|
+      name, value = feature
+      features[name.content.downcase.gsub(" ", "_")] = value.content
+    end
+
+    ScraperWiki.save_sqlite(["name"], features)
+  end
+
+  break if links.empty? || list_page('.loadmorebtn').nil?
+end
+
+puts "done"
